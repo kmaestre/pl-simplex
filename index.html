@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title></title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<style>
+		code {
+			font-family: 'Fira Code'
+		}
+	</style>
+</head>
+<body>
+	<div class="container-fluid"> <!-- Formulario de Entrada-->
+		<section class="col-4 mt-1 border rounded p-2 action="#">
+			<div class="input-group mb-3">
+			  <div class="input-group-prepend">
+			    <select class="form-control">
+			    	<option>Minimizar</option>
+			    	<option>Maximizar</option>
+			    </select>
+			  </div>
+			  <input type="text" class="form-control">
+			</div>
+			<div class="input-group">
+				<label>Restricciones:</label>
+				<div class="input-group mb-3">
+					<input class="form-control" id="restriction-input">
+					<div class="input-group-append">
+						<button class="btn btn-default">Agregar</button>
+					</div>
+				</div>
+			</div>
+			<!-- lista de  restricciones-->
+			<ul class="list-group mb-3 text-center" id="restriction-list"></ul>
+			<!-- Fin Lista de restricciones-->
+			<div class="form-group">
+				<button class="btn btn-primary btn-sm btn-block">Calcular</button>
+			</div>
+		</section>	
+	</div> <!-- Fin Formulario de entrada-->
+	<script src="./app.js"></script>
+	<script>
+		document.querySelector('.btn-default').addEventListener('click', addRestriction)
+	</script>
+</body>
+</html>
