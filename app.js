@@ -35,6 +35,8 @@ function splitRestriction(res) {
 	};
 }
 
+//.match(/((\+|\-)\d{0,}[a-z])|(\d{0,}[a-z])/g)
+
 function getCoeficients(exp) {
 	let expTree = exp.split(/(\+)|(\-)/g);
 	let coe = [];

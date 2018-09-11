@@ -34,7 +34,7 @@
 					<div class="input-group mb-3">
 						<input class="form-control" id="restriction-input">
 						<div class="input-group-append">
-							<button class="btn btn-default">Agregar</button>
+							<button id="addRestriction" class="btn btn-primary">Agregar</button>
 						</div>
 					</div>
 				</div>
@@ -42,7 +42,7 @@
 				<ul class="list-group mb-3 text-center" id="restriction-list"></ul>
 				<!-- Fin Lista de restricciones-->
 				<div class="form-group">
-					<button class="btn btn-primary btn-sm btn-block">Calcular</button>
+					<button class="btn btn-outline-dark btn-sm btn-block">Calcular</button>
 				</div>
 			</section>
 			<!-- Fin Formulario de entrada-->	
@@ -74,7 +74,7 @@
 	</div> 
 	<script src="./app.js"></script>
 	<script>
-		document.querySelector('.btn-default').addEventListener('click', addRestriction)
+		document.querySelector('#addRestriction').addEventListener('click', addRestriction)
 	</script>
 </body>
 </html>
