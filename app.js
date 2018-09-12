@@ -41,9 +41,14 @@ function getCoeficients(exp) {
 	let expTree = exp.split(/(\+)|(\-)/g);
 	let coe = [];
 
-	exp.split(/[a-zA-Z]/g).forEach(el => coe.push(parseInt(el)));
-
 	console.log(expTree);
+	console.log(exp.match(/((\+|\-)\d{0,}[a-z])|(\d{0,}[a-z])/g))
+
+	exp.match(/((\+|\-)\d{0,}[a-z])|(\d{0,}[a-z])/g).forEach(el => {
+		coe.push(parseFloat(el) ? parseFloat(el) : 1)
+		return
+	});
+
 	console.log(coe);
 
 	let res = [];
