@@ -1,38 +1,39 @@
-let restrictions = [];
-
+let restricciones = [];
+let soluciones = [];
 let tablaRes = [];
-let obajective = document.getElementById('obj-input').value
+let objectivo = document.getElementById('obj-input').value
 
 function addRestriction(e) {
 	let res = document.getElementById('restriction-input').value;
 	if (res == '') return
 
-	restrictions.push(splitRestriction(res))
-	getCoeficients(restrictions[0][1].rightHand)
+	restricciones.push(splitRestriction(res))
+	getCoeficients(restricciones[restricciones.length -1][1].rightHand)
+	soluciones.push(restricciones[restricciones.length -1][1].leftHand)
 
-	console.log(restrictions)
+	//console.log(restricciones)
 	document.getElementById('restriction-list').innerHTML += `<li class="list-group-item"><code>${res}</code></li>`
 }
 
 function splitRestriction(res) {
-	if (res.match(' = ')) {
+	if (/\s=\s/.test(res)) {
 		let splited = res.split(' = ')
 		return ['=', {
 			rightHand:  splited[0], leftHand:  splited[1]
 		}]
-	}
-	if (res.match(' >= ')) {
-		let splited = res.split(' >= ')
+	} else if(/\s>=\s/.test(res)) {
+		let splited = res.replace(' ', '-s ').split(' >= ')
 		return ['>=', {
 			rightHand:  splited[0], leftHand:  splited[1]
 		}]
-	};
-	if (res.match(' <= ')) {
-		let splited = res.split(' <= ')
+	} else if(/\s<=\s/.test(res)) {
+		let splited = res.replace(' ', '+s ').split(' <= ')
 		return ['<=', {
 			rightHand:  splited[0], leftHand:  splited[1]
 		}]
-	};
+	} else {
+		return 1;
+	}
 }
 
 //.match(/((\+|\-)\d{0,}[a-z])|(\d{0,}[a-z])/g)
@@ -41,22 +42,44 @@ function getCoeficients(exp) {
 	let expTree = exp.split(/(\+)|(\-)/g);
 	let coe = [];
 
-	console.log(expTree);
-	console.log(exp.match(/((\+|\-)\d{0,}[a-z])|(\d{0,}[a-z])/g))
+	//console.log(expTree);
+	//console.log(exp.match(/((\+|\-)\d{0,}[a-z])|(\d{0,}[a-z])/g))
 
-	exp.match(/((\+|\-)\d{0,}[a-z])|(\d{0,}[a-z])/g).forEach(el => {
-		coe.push(parseFloat(el) ? parseFloat(el) : 1)
-		return
+	exp.match(/((\+|\-)\d{0,}[a-z])|(\d{0,}[a-z])/g).forEach((el, index) => {
+		//console.log(el, index)
+		if (el.match(/\-[a-zA-Z]/g)) {
+			coe.push(-1)
+		} else {
+			coe.push(parseFloat(el) ? parseFloat(el) : 1)
+		}
 	});
 
-	console.log(coe);
+	//console.log(coe);
 
-	let res = [];
 	tablaRes.push(coe)
 
-	expTree.forEach(term => {
-		if (term != undefined && term != '') res.push(term)
+}
+
+
+function verCoeficientes() {
+	for (row of tablaRes) console.log(row)
+}
+
+function crearTabla() {
+	let tabla = document.getElementById('tabla');
+
+	let body = tabla.querySelector('tbody');
+
+
+	tablaRes.forEach((el, i) => {
+		let tr = document.createElement('tr');
+		tr.innerHTML = '<td>var</td>'
+		el.forEach((el) => {
+			tr.innerHTML += `<td>${el}</td>`
+		});
+		
+		tr.innerHTML += `<td>${soluciones[i]}</td>`
+		body.appendChild(tr)
 	});
 
-	return (res)
 }
