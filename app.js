@@ -1,21 +1,18 @@
 
 let tipo = 'min'
-let variablesRea;
-let variablesHol;
-let variablesArt;
-let restricciones;
-let soluciones;
-let tablaRes;
+let variablesRea = [];
+let variablesHol = [];
+let variablesArt = [];
+let restricciones = [];
+let soluciones = [];
+let tablaRes = [];
 let modeloEstandard;
 
 function simplex() {
 	let objetivo = document.getElementById('obj-input').value
-	variablesRea = [];
-	variablesHol = [];
-	variablesArt = [];
-	soluciones = [];
-	tablaRes = []
-	modeloEstandard = {
+	
+  modeloEstandard = {
+		tipo: document.getElementById('tipo').value,
 		objetivo: [],
 		restricciones: [],
 		varDecision: [],
@@ -24,15 +21,22 @@ function simplex() {
 	}
 
 	variablesRea = objetivo.match(/[X]\d{1,}/g)
-	console.log('variables reales:', variablesRea)
 
 	variablesHol.forEach(s => {
-		objetivo += s;
+		objetivo += ' + 0'+s;
+		modeloEstandard.varHolgura.push(s)
 	});
+
+	variablesArt.forEach(r => {
+		objetivo += ' + 0'+r;
+		modeloEstandard.varArtificiales.push(r)
+	})
 
 	getCoeficients(objetivo).forEach(el => {
 		(el == 0) ? modeloEstandard.objetivo.push(0) : modeloEstandard.objetivo.push(el*(-1))
 	})
+
+	modeloEstandard.funcionObjetivo = objetivo;
 
 }
 
@@ -54,29 +58,27 @@ function addRestriction(e) {
 function splitRestriction(res) {
 	if (/\s=\s/.test(res)) {
 
-		let splited = res.replace(' ', `+R${restricciones.length+1} `).split(' = ')
-		variablesArt.push(`+0R${restricciones.length+1}`)
+		let splited = res.replace(' ', `+R${variablesArt.length+1} `).split(' = ')
+		variablesArt.push(`R${variablesArt.length+1}`)
 		return ['=', { rightHand:  splited[0], leftHand:  splited[1]}]
 
 	} else if(/\s>=\s/.test(res)) {
 
-		let splited = res.replace(' ', `-S${restricciones.length+1}+R${restricciones.length+1} `).split(' >= ');
-		variablesHol.push(`-0S${restricciones.length+1}`)
-		variablesArt.push(`+0R${restricciones.length+1}`)
+		let splited = res.replace(' ', `-S${variablesHol.length+1}+R${variablesArt.length+1} `).split(' >= ');
+		variablesHol.push(`S${variablesHol.length+1}`)
+		variablesArt.push(`R${variablesArt.length+1}`)
 		return ['>=', { rightHand:  splited[0], leftHand:  splited[1]}]
 
 	} else if(/\s<=\s/.test(res)) {
 
-		let splited = res.replace(' ', `+S${restricciones.length+1} `).split(' <= ')
-		variablesHol.push(`+0S${restricciones.length+1}`)
+		let splited = res.replace(' ', `+S${variablesHol.length+1} `).split(' <= ')
+		variablesHol.push(`S${variablesHol.length+1}`)
 		return ['<=', { rightHand:  splited[0], leftHand:  splited[1]}]
 
 	} else {
 		return;
 	}
 }
-
-//.match(/((\+|\-)\d{0,}[a-z])|(\d{0,}[a-z])/g)
 
 function getCoeficients(exp) {
 	//console.log(exp)
@@ -107,7 +109,6 @@ function getCoeficients(exp) {
 	return coe;
 
 }
-
 
 function verCoeficientes() {
 	for (row of tablaRes) console.log(row)

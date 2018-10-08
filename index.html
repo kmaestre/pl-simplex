@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title></title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<link rel="stylesheet" href="./bootstrap.min.css">
 	<style>
 		* {
 			font-size: 14px;
@@ -20,15 +20,30 @@
 		<div class="row pt-3">
 			<!-- Formulario de Entrada-->
 			<section class="col-4 border rounded p-3">
-				<div class="input-group mb-3">
+				<div class="input-group">
 				  <div class="input-group-prepend">
-				    <select class="form-control">
-				    	<option>Min Z</option>
-				    	<option>Max Z</option>
+				    <select id="tipo" class="form-control">
+				    	<option value="min">Min Z</option>
+				    	<option value="max">Max Z</option>
 				    </select>
 				  </div>
 				  <input id="obj-input" type="text" class="form-control">
+				  <div class="input-group row mt-3 text-center">
+				  	<label class="col-4">
+				  		<input type="radio" name="">
+				  		Simplex
+				  	</label>
+				  	<label class="col-4">
+				  		<input type="radio" name="">
+				  		2 Fases
+				  	</label>
+				  	<label class="col-4">
+				  		<input type="radio" name="">
+				  		Gran M
+				  	</label>
+				  </div>
 				</div>
+				<hr>
 				<div class="input-group">
 					<label>Restricciones:</label>
 					<div class="input-group mb-3">
@@ -68,6 +83,11 @@
 	</div> 
 	<script src="./app.js"></script>
 	<script>
+		document.querySelector('#restriction-input').addEventListener('keypress', (e) => {
+			if (e.key == 'Enter') {
+				addRestriction();
+			}
+		})
 		document.querySelector('#addRestriction').addEventListener('click', addRestriction)
 	</script>
 </body>

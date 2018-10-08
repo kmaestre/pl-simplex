@@ -1,0 +1,10 @@
+- Escribir Funcion objetivo
+- Agregar Restriciones (1 por 1)
+- Estandarizar
+	* Tomar variables de desicion de la funcion objetivo
+	* Tomar cantidad de restricciones
+	* Tomar cantidad de variables de Holgura, de Exceso y Artificiales a partir de las desigualdades de las restricciones
+	* Por cada Restriccion: 
+		- Estandarizar
+		- Agregar variables de Exceso, de Holgura y Artificiales segun las cantidades obtenidas anteriormente
+		
