@@ -10,8 +10,9 @@
 	<script src="js/popper.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<style>
-		* {
+		*, .btn {
 			font-size: 14px;
+			font-weight: bold;
 		}
 		code, #restriction-input {
 			font-family: 'Fira Code'
@@ -39,7 +40,7 @@
 					<div class="input-group mb-3">
 						<input class="form-control" id="restriction-input">
 						<div class="input-group-append">
-							<button id="addRestriction" class="btn btn-outline-primary btn-sm">Agregar</button>
+							<button id="addRestriction" class="btn btn-dark btn-sm">Agregar</button>
 						</div>
 					</div>
 				</div>
@@ -47,7 +48,7 @@
 				<ul class="list-group mb-3 text-center" id="restriction-list"></ul>
 				<!-- Fin Lista de restricciones-->
 				<div class="form-group">
-					<button class="btn btn-outline-success btn-sm btn-block" onclick="simplex()">Calcular</button>
+					<button class="btn btn-dark btn-sm btn-block" onclick="simplex()">Calcular</button>
 				</div>
 			</section>
 			<!-- Fin Formulario de entrada-->	
@@ -65,6 +66,7 @@
 			</section>
 			<!-- Fin Tabla -->
 		</div>
+
 	</div> 
 	<script src="./app.js"></script>
 	<script>

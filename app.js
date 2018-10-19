@@ -1,4 +1,3 @@
-
 let tipo = 'min'
 let variablesRea = [];
 let variablesHol = [];
@@ -17,10 +16,18 @@ function simplex() {
 
 	let tablaInicial = [];
 
-	tablaInicial.push(getCoeficients(modelo.objetivo));
+	let z = []; // contiene temporalmente la fila Z de la tabla incial
 
-	modelo.restricciones.forEach(r => {
-		tablaInicial.push(getCoeficients(r));
+	getCoeficients(modelo.objetivo).forEach(e => {
+		z.push(e*(-1));
+	});
+	 z.push(0)
+
+	tablaInicial.push(z);
+
+	modelo.restricciones.forEach((r, i) => {
+		tablaInicial.push(getCoeficients(r)); // coeficientes de las variales
+		tablaInicial[i+1].push(r.split(' = ')[1]); // valor solucion
 	});
 
 	// Crear cabecera de la tabla
@@ -33,9 +40,11 @@ function simplex() {
 	variables.forEach(x => {
 		cabecera.innerHTML += '<th>' + x + '</th>';
 	})
+
+	cabecera.innerHTML += '<th>Sol</th>'
+
 	// Seleccionar variables Basicas
 	// Crear columna de variables basicas
-
 	let tabla = document.getElementById('tbody');
 	tabla.innerHTML = '';
 
@@ -48,8 +57,6 @@ function simplex() {
 
 		tabla.innerHTML += filaHtml + '</tr>';
 	});
-
-
 }
 
 // Metodo para agregar una restriccion al arreglo de restricciones
@@ -147,6 +154,51 @@ function estandarizar() {
 	return modelo;
 }
 
+
+// Metodo para extraer los coeficientes de una expresion
+function getCoeficients(exp) {
+	let expTree = exp.split(/(\+)|(\-)/g);
+	let coe = [];
+
+	exp.match(/((\+|\-){0,}\d{0,}[a-zA-Z]\d{1,})/g).forEach((el, index) => {
+		if (el.match(/\-[a-zA-Z]\d{1,}/g)) {
+			coe.push(-1)
+		} else {
+			let val = parseFloat(el)
+
+			if ((/\d/g).test(val)) {
+				coe.push(val == 0 ? 0 : val)
+			} else {
+				coe.push(1)
+			}
+		}
+
+	});
+
+	return coe;
+}
+
+function verCoeficientes() {
+	for (row of tablaRes) console.log(row)
+}
+
+function crearTabla() {
+	let tabla = document.getElementById('tabla');
+
+	let body = tabla.querySelector('tbody');
+
+	tablaRes.forEach((el, i) => {
+		let tr = document.createElement('tr');
+		tr.innerHTML = '<td>var</td>'
+		el.forEach((el) => {
+			tr.innerHTML += `<td>${el}</td>`
+		});
+		
+		tr.innerHTML += `<td>${soluciones[i]}</td>`
+		body.appendChild(tr)
+	});
+}
+
 function splitRestriction(res) {
 	if (/\s=\s/.test(res)) {
 
@@ -170,56 +222,4 @@ function splitRestriction(res) {
 	} else {
 		return;
 	}
-}
-
-// Metodo para extraer los coeficientes de una expresion
-function getCoeficients(exp) {
-	//console.log(exp)
-	let expTree = exp.split(/(\+)|(\-)/g);
-	//console.log(expTree)
-	let coe = [];
-
-	//console.log(expTree);
-	//console.log(exp.match(/((\+|\-)\d{0,}[a-z])|(\d{0,}[a-z])/g))
-
-	exp.match(/((\+|\-){0,}\d{0,}[a-zA-Z]\d{1,})/g).forEach((el, index) => {
-		//console.log(el, index)
-		if (el.match(/\-[a-zA-Z]\d{1,}/g)) {
-			coe.push(-1)
-		} else {
-			let val = parseFloat(el)
-
-			if ((/\d/g).test(val)) {
-				coe.push(val == 0 ? 0 : val)
-			} else {
-				coe.push(1)
-			}
-		}
-	});
-
-	//console.log(coe);
-	return coe;
-
-}
-
-function verCoeficientes() {
-	for (row of tablaRes) console.log(row)
-}
-
-function crearTabla() {
-	let tabla = document.getElementById('tabla');
-
-	let body = tabla.querySelector('tbody');
-
-	tablaRes.forEach((el, i) => {
-		let tr = document.createElement('tr');
-		tr.innerHTML = '<td>var</td>'
-		el.forEach((el) => {
-			tr.innerHTML += `<td>${el}</td>`
-		});
-		
-		tr.innerHTML += `<td>${soluciones[i]}</td>`
-		body.appendChild(tr)
-	});
-
 }
