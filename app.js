@@ -6,42 +6,13 @@ let restricciones = [];
 let soluciones = [];
 let tablaRes = [];
 let modeloEstandard;
+let v_entra;
+let v_sale;
+let sbi = [];
+let metodo = 0;
 
 //
-function simplex() {
-	let objetivo = document.getElementById('obj-input').value
-	
-	
-	let modelo = estandarizar();
-
-	let tablaInicial = [];
-
-	let z = []; // contiene temporalmente la fila Z de la tabla incial
-
-	getCoeficients(modelo.objetivo).forEach(e => {
-		z.push(e*(-1));
-	});
-	z.push(0)
-
-	tablaInicial.push(z);
-
-	modelo.restricciones.forEach((r, i) => {
-		tablaInicial.push(getCoeficients(r)); // coeficientes de las variales
-		tablaInicial[i+1].push(r.split(' = ')[1]); // valor solucion
-	});
-
-	// Crear cabecera de la tabla
-	// con variables en funcion objetivo
-	let variables = modelo.objetivo.match(/[a-zA-Z]\d{1,}/g);
-
-	let cabecera = document.getElementById('cabecera');
-	cabecera.innerHTML = '<th>VB</th>';
-
-	variables.forEach(x => {
-		cabecera.innerHTML += '<th>' + x + '</th>';
-	})
-
-	cabecera.innerHTML += '<th>Sol</th>'
+function simplex(tablaInicial) {
 
 	// Seleccionar variables Basicas
 	// Crear columna de variables basicas
@@ -49,7 +20,7 @@ function simplex() {
 	tabla.innerHTML = '';
 
 	tablaInicial.forEach((fila, i) => {
-		let filaHtml = (i == 0) ? `<tr><td>Z</td>` : `<tr><td>S${i}</td>`;
+		let filaHtml = (i == 0) ? `<tr style="background-color: darkgrey; color: white;"><td>Z</td>` : `<tr><td>S${i}</td>`;
 		
 		fila.forEach(coe => {
 			filaHtml += '<td>' + coe + '</td>';
@@ -58,27 +29,67 @@ function simplex() {
 		tabla.innerHTML += filaHtml + '</tr>';
 	});
 
-	var v_entra = entra(tablaInicial[0]);
-	var v_sale = sale(tablaInicial.slice(1, tablaInicial.length+1), v_entra);
+	console.log(tablaInicial);
+
+	for (i = 0; i < 2; i++) {
+		console.log('---------------------')
+		v_entra = entra(tablaInicial[0]);
+		v_sale = sale(tablaInicial.slice(1, tablaInicial.length+1), v_entra);
+		sbi[v_sale] = document.getElementsByTagName('th')[v_entra+1].innerText;
+
+
+		console.log('entra:', v_entra+1, 'sale:', v_sale+1);
+
+		let filaPivote = filaPivoteNueva(tablaInicial[v_sale+1]);
+		tablaInicial[v_sale+1] = filaPivote;
+
+		let nuevaFila = [];
+
+		tablaInicial.forEach((fila, index) => {
+			if (index != v_sale + 1 ) {
+				filaPivote.forEach((e, j) => {
+					let pivotecambiado = (((-1)*fila[v_entra])*filaPivote[j] );
+
+					let nuevo = fila[j] + pivotecambiado;
+					nuevaFila.push(nuevo);
+				})
+				tablaInicial[index] = nuevaFila;
+				nuevaFila = [];
+			}
+		})
+
+		crearTabla(tablaInicial, i);	
+		console.log(sbi)
+	}
+}
+
+function filaPivoteNueva(fila) {
+	let nueva = [];
+	fila.forEach(el => nueva.push(el/pivote));
+	return nueva;
 }
 
 function sale(tabla, entra) {
-	console.log(tabla, entra);
-	tabla.forEach(fila => console.log(fila[fila.length-1]));
+	let posicion, valor = 1000;
 
-	let posicion, valor;
-
-	for (let i = 0; i <= tabla.length; i++) {
-		if (i == 0) {
-			valor = tabla[i][tabla[i].length] / tabla[i][tabla[entra]];
-			posicion = i;
-		} else if (valor > tabla[i][tabla[i].length] / tabla[i][tabla[entra]]) {
-			posicion = i;
-			valor = tabla[i][tabla[i].length] / tabla[i][tabla[entra]];
+	tabla.forEach((fila, pos) => {
+		if (fila[entra] > 0) {
+			if (pos == 0) {
+				valor = fila[fila.length - 1] / fila[entra];
+				posicion = pos;
+			} else if (valor >= fila[fila.length - 1] / fila[entra]) {
+				posicion = pos;
+				valor = fila[fila.length - 1] / fila[entra];
+			}
 		}
-	}
-	//document.getElementsByTagName('th')[posicion+1].style.backgroundColor = 'red';
-	console.log('sale', posicion)
+	});
+	
+	pivote = tabla[posicion][entra];
+
+	//let trSale = document.querySelectorAll('tbody tr')[posicion+1]
+	//trSale.querySelector('td').className = 'alert-danger';
+	//trSale.querySelectorAll('td')[entra+1].className = 'alert-warning';
+
 	return posicion;
 }
 
@@ -87,15 +98,17 @@ function entra(z) {
 	let posicion, mayor;
 	
 	for (let i = 0; i <= z.length; i++) {
-		if (i == 0) {
-			mayor = z[i];
-			posicion = i;
-		} else if (Math.abs(mayor) < Math.abs(z[i])) {
-			posicion = i;
-			mayor = z[i];
+		if (z[i] < 0) {
+			if (i == 0) {
+				mayor = z[0];
+				posicion = 0;
+			} else if (Math.abs(mayor) < Math.abs(z[i])) {
+				posicion = i;
+				mayor = z[i];
+			}
 		}
 	}
-	document.getElementsByTagName('th')[posicion+1].style.backgroundColor = 'red';
+	//document.getElementsByTagName('th')[posicion+1].className = 'alert-primary';
 	return posicion;
 }
 
@@ -191,6 +204,14 @@ function estandarizar() {
 	console.log('Sujeto a:');
 	modelo.restricciones.forEach(r => console.log(r));
 	*/
+
+	if (c_art > 0) {
+		metodo = 1;
+	} else {
+		for (let w=0; w < c_hol; w++) {
+			sbi.push('S'+(w+1));
+		}
+	}
 	return modelo;
 }
 
@@ -217,24 +238,22 @@ function getCoeficients(exp) {
 	return coe;
 }
 
-function verCoeficientes() {
-	for (row of tablaRes) console.log(row)
-}
-
-function crearTabla() {
-	let tabla = document.getElementById('tabla');
-
-	let body = tabla.querySelector('tbody');
-
-	tablaRes.forEach((el, i) => {
-		let tr = document.createElement('tr');
-		tr.innerHTML = '<td>var</td>'
-		el.forEach((el) => {
-			tr.innerHTML += `<td>${el}</td>`
+// crea la tabla html con los valores de la matriz;
+function crearTabla(tabla, iter) {
+	let tablaHTML = document.getElementById('tbody');
+	let filaHtml = '';
+	
+	tabla.forEach((fila, i) => {
+		if (i == 0) {
+			filaHtml = `<tr style="background-color: darkgrey; color: white;"><td>Z</td>`;
+		} else {
+			filaHtml = `<tr><td>${sbi[i-1]}</td>`
+		}
+		fila.forEach(coe => {
+			filaHtml += '<td>' + coe + '</td>';
 		});
-		
-		tr.innerHTML += `<td>${soluciones[i]}</td>`
-		body.appendChild(tr)
+
+		tablaHTML.innerHTML += filaHtml + '</tr>';
 	});
 }
 
@@ -260,5 +279,47 @@ function splitRestriction(res) {
 
 	} else {
 		return;
+	}
+}
+
+function calcular() {
+	let objetivo = document.getElementById('obj-input').value
+	
+	
+	let modelo = estandarizar();
+
+	let tablaInicial = [];
+
+	let z = []; // contiene temporalmente la fila Z de la tabla incial
+
+	getCoeficients(modelo.objetivo).forEach(e => {
+		z.push(e*(-1));
+	});
+	z.push(0)
+
+	tablaInicial.push(z);
+
+	modelo.restricciones.forEach((r, i) => {
+		tablaInicial.push(getCoeficients(r)); // coeficientes de las variales
+		tablaInicial[i+1].push(parseFloat(r.split(' = ')[1])); // valor solucion
+	});
+
+	// Crear cabecera de la tabla
+	// con variables en funcion objetivo
+	let variables = modelo.objetivo.match(/[a-zA-Z]\d{1,}/g);
+
+	let cabecera = document.getElementById('cabecera');
+	cabecera.innerHTML = '<th>VB</th>';
+
+	variables.forEach(x => {
+		cabecera.innerHTML += '<th>' + x + '</th>';
+	})
+
+	cabecera.innerHTML += '<th>Sol</th>';
+
+	if (metodo == 0) {
+		simplex(tablaInicial)
+	} else {
+		alert('Este problema se resuelve por el metodo de la M o el de 2 Fases')
 	}
 }

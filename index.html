@@ -20,11 +20,11 @@
 	</style>
 </head>
 <body>
-	<div class="container-fluid">
+	<div class="container-fluid bg-secondary">
 
 		<div class="row">
 			<!-- Formulario de Entrada-->
-			<section class="col-3 border-right py-2" style="min-height: 100vh;">
+			<section class="col-3 border-right py-2 bg-white" style="min-height: 100vh;">
 				<div class="input-group">
 				  <div class="input-group-prepend">
 				    <select id="tipo" class="form-control">
@@ -48,14 +48,14 @@
 				<ul class="list-group mb-3 text-center" id="restriction-list"></ul>
 				<!-- Fin Lista de restricciones-->
 				<div class="form-group">
-					<button class="btn btn-dark btn-sm btn-block" onclick="simplex()">Calcular</button>
+					<button class="btn btn-dark btn-sm btn-block" onclick="calcular()">Calcular</button>
 				</div>
 			</section>
 			<!-- Fin Formulario de entrada-->	
 
 			<!-- Tabla-->
 			<section id="resultado" class="col-8 mx-auto py-2">
-				<table id="tabla" class="table table-hover table-bordered text-center">
+				<table id="tabla" class="table table-hover table-bordered text-center bg-white rounded">
 					<thead>
 						<tr id="cabecera">
 						</tr>
