@@ -21,7 +21,7 @@ function simplex() {
 	getCoeficients(modelo.objetivo).forEach(e => {
 		z.push(e*(-1));
 	});
-	 z.push(0)
+	z.push(0)
 
 	tablaInicial.push(z);
 
@@ -48,8 +48,8 @@ function simplex() {
 	let tabla = document.getElementById('tbody');
 	tabla.innerHTML = '';
 
-	tablaInicial.forEach(fila => {
-		let filaHtml = '<tr><td>Z</td>';
+	tablaInicial.forEach((fila, i) => {
+		let filaHtml = (i == 0) ? `<tr><td>Z</td>` : `<tr><td>S${i}</td>`;
 		
 		fila.forEach(coe => {
 			filaHtml += '<td>' + coe + '</td>';
@@ -57,6 +57,46 @@ function simplex() {
 
 		tabla.innerHTML += filaHtml + '</tr>';
 	});
+
+	var v_entra = entra(tablaInicial[0]);
+	var v_sale = sale(tablaInicial.slice(1, tablaInicial.length+1), v_entra);
+}
+
+function sale(tabla, entra) {
+	console.log(tabla, entra);
+	tabla.forEach(fila => console.log(fila[fila.length-1]));
+
+	let posicion, valor;
+
+	for (let i = 0; i <= tabla.length; i++) {
+		if (i == 0) {
+			valor = tabla[i][tabla[i].length] / tabla[i][tabla[entra]];
+			posicion = i;
+		} else if (valor > tabla[i][tabla[i].length] / tabla[i][tabla[entra]]) {
+			posicion = i;
+			valor = tabla[i][tabla[i].length] / tabla[i][tabla[entra]];
+		}
+	}
+	//document.getElementsByTagName('th')[posicion+1].style.backgroundColor = 'red';
+	console.log('sale', posicion)
+	return posicion;
+}
+
+//identifica la vaiable que entra
+function entra(z) {
+	let posicion, mayor;
+	
+	for (let i = 0; i <= z.length; i++) {
+		if (i == 0) {
+			mayor = z[i];
+			posicion = i;
+		} else if (Math.abs(mayor) < Math.abs(z[i])) {
+			posicion = i;
+			mayor = z[i];
+		}
+	}
+	document.getElementsByTagName('th')[posicion+1].style.backgroundColor = 'red';
+	return posicion;
 }
 
 // Metodo para agregar una restriccion al arreglo de restricciones
@@ -153,7 +193,6 @@ function estandarizar() {
 	*/
 	return modelo;
 }
-
 
 // Metodo para extraer los coeficientes de una expresion
 function getCoeficients(exp) {
