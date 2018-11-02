@@ -10,6 +10,7 @@ let v_entra;
 let v_sale;
 let sbi = [];
 let metodo = 0;
+let optimo = false;
 
 //
 function simplex(tablaInicial) {
@@ -31,14 +32,12 @@ function simplex(tablaInicial) {
 
 	console.log(tablaInicial);
 
-	for (i = 0; i < 2; i++) {
+	let i = 0;
+	while (optimo== false) {
 		console.log('---------------------')
 		v_entra = entra(tablaInicial[0]);
 		v_sale = sale(tablaInicial.slice(1, tablaInicial.length+1), v_entra);
 		sbi[v_sale] = document.getElementsByTagName('th')[v_entra+1].innerText;
-
-
-		console.log('entra:', v_entra+1, 'sale:', v_sale+1);
 
 		let filaPivote = filaPivoteNueva(tablaInicial[v_sale+1]);
 		tablaInicial[v_sale+1] = filaPivote;
@@ -60,7 +59,30 @@ function simplex(tablaInicial) {
 
 		crearTabla(tablaInicial, i);	
 		console.log(sbi)
+		i++;
+		optimo = esOptimo(tablaInicial[0]);
 	}
+
+	if (optimo) {
+		console.log('Se encontro una solucion optima')
+		sbi.forEach((v, index) => {
+			if (/X\d{1,}/.test(v)) console.log(v+':', tablaInicial[index+1][tablaInicial[0].length - 1]);
+		})
+	}
+}
+
+function esOptimo(z) {
+	let res = true;
+
+	z.forEach(e => {
+		if (modeloEstandard.tipo == 'max') {
+			if (e<0) res = false;
+		} else if (tipo == 'min') {
+			if (e>0) res = false;
+		}
+	});
+
+	return res;
 }
 
 function filaPivoteNueva(fila) {
@@ -70,19 +92,23 @@ function filaPivoteNueva(fila) {
 }
 
 function sale(tabla, entra) {
-	let posicion, valor = 1000;
+	let posicion, valor = 1111111111;
 
 	tabla.forEach((fila, pos) => {
 		if (fila[entra] > 0) {
 			if (pos == 0) {
 				valor = fila[fila.length - 1] / fila[entra];
 				posicion = pos;
-			} else if (valor >= fila[fila.length - 1] / fila[entra]) {
+			} else if (valor > fila[fila.length - 1] / fila[entra]) {
 				posicion = pos;
 				valor = fila[fila.length - 1] / fila[entra];
 			}
 		}
 	});
+
+	if (posicion == undefined && valor == 1111111111) {
+		alert('variable no acotada')
+	}
 	
 	pivote = tabla[posicion][entra];
 
@@ -286,27 +312,27 @@ function calcular() {
 	let objetivo = document.getElementById('obj-input').value
 	
 	
-	let modelo = estandarizar();
+	modeloEstandard = estandarizar();
 
 	let tablaInicial = [];
 
 	let z = []; // contiene temporalmente la fila Z de la tabla incial
 
-	getCoeficients(modelo.objetivo).forEach(e => {
+	getCoeficients(modeloEstandard.objetivo).forEach(e => {
 		z.push(e*(-1));
 	});
 	z.push(0)
 
 	tablaInicial.push(z);
 
-	modelo.restricciones.forEach((r, i) => {
+	modeloEstandard.restricciones.forEach((r, i) => {
 		tablaInicial.push(getCoeficients(r)); // coeficientes de las variales
 		tablaInicial[i+1].push(parseFloat(r.split(' = ')[1])); // valor solucion
 	});
 
 	// Crear cabecera de la tabla
 	// con variables en funcion objetivo
-	let variables = modelo.objetivo.match(/[a-zA-Z]\d{1,}/g);
+	let variables = modeloEstandard.objetivo.match(/[a-zA-Z]\d{1,}/g);
 
 	let cabecera = document.getElementById('cabecera');
 	cabecera.innerHTML = '<th>VB</th>';
@@ -322,4 +348,14 @@ function calcular() {
 	} else {
 		alert('Este problema se resuelve por el metodo de la M o el de 2 Fases')
 	}
+}
+
+function limpiar() {
+	document.getElementById('obj-input').value = '';
+	limpiarRestricciones();
+}
+
+function limpiarRestricciones() {
+	document.getElementById('restriction-list').innerHTML = '';
+	restricciones=[];
 }
