@@ -9,7 +9,8 @@ let modeloEstandard;
 let v_entra;
 let v_sale;
 let sbi = [];
-let metodo = 0;
+let variables = [];
+let artificiales = [];
 let optimo = false;
 
 //
@@ -19,9 +20,22 @@ function simplex(tablaInicial) {
 	// Crear columna de variables basicas
 	let tabla = document.getElementById('tbody');
 	tabla.innerHTML = '';
+	
+	variables.forEach((e, i) => {
+		if (i >= (variables.length - restricciones.length)) sbi.push(e)
+	}) 
+
+	sbi.forEach((v, n) => {
+		if ((/R\d{0,}/g).test(v)) {
+			let temp = tablaInicial[n+1];
+			temp.forEach((el, i) => {
+				tablaInicial[0][i] += el*(-1000000000)
+			})
+		}
+	})
 
 	tablaInicial.forEach((fila, i) => {
-		let filaHtml = (i == 0) ? `<tr style="background-color: darkgrey; color: white;"><td>Z</td>` : `<tr><td>S${i}</td>`;
+		let filaHtml = (i == 0) ? `<tr style="background-color: darkgrey; color: white;"><td>Z</td>` : `<tr><td>${sbi[i-1]}</td>`;
 		
 		fila.forEach(coe => {
 			filaHtml += '<td>' + coe + '</td>';
@@ -32,10 +46,15 @@ function simplex(tablaInicial) {
 
 	console.log(tablaInicial);
 
+
+
+	alert(sbi)
+
 	let i = 0;
 	while (optimo== false) {
 		console.log('---------------------')
 		v_entra = entra(tablaInicial[0]);
+		alert('entra '+v_entra)
 		v_sale = sale(tablaInicial.slice(1, tablaInicial.length+1), v_entra);
 		sbi[v_sale] = document.getElementsByTagName('th')[v_entra+1].innerText;
 
@@ -75,9 +94,9 @@ function esOptimo(z) {
 	let res = true;
 
 	z.forEach(e => {
-		if (document.getElementById('tipo').value == 'max') {
+		if (modeloEstandard.tipo == 'max') {
 			if (e<0) res = false;
-		} else if (document.getElementById('tipo').value == 'min') {
+		} else if (tipo == 'min') {
 			if (e>0) res = false;
 		}
 	});
@@ -109,7 +128,7 @@ function sale(tabla, entra) {
 	if (posicion == undefined && valor == 1111111111) {
 		alert('variable no acotada')
 	}
-	
+	console.log('----', entra)
 	pivote = tabla[posicion][entra];
 
 	//let trSale = document.querySelectorAll('tbody tr')[posicion+1]
@@ -121,20 +140,38 @@ function sale(tabla, entra) {
 
 //identifica la vaiable que entra
 function entra(z) {
-	let posicion, mayor;
+	let posicion, mayor = 0;;
 	
-	for (let i = 0; i <= z.length; i++) {
-		if (z[i] < 0) {
-			if (i == 0) {
-				mayor = z[0];
-				posicion = 0;
-			} else if (Math.abs(mayor) < Math.abs(z[i])) {
-				posicion = i;
-				mayor = z[i];
-			}
+	for (let i = 0; i < z.length-1; i++) {
+		switch(document.getElementById('tipo').value){
+			case 'max':
+				if (z[i] < 0) {
+					if (i == 0) {
+						mayor = z[0];
+						posicion = 0;
+					} else if (Math.abs(mayor) < Math.abs(z[i])) {
+						posicion = i;
+						mayor = z[i];
+					}
+				}
+				console.log('max',mayor)
+				break;
+			case 'min':
+				if (z[i] > 0) {
+					if (i == 0) {
+						mayor = z[0];
+						posicion = 0;
+					} else if (Math.abs(mayor) < Math.abs(z[i])) {
+						posicion = i;
+						mayor = z[i];
+					}
+				}
+				console.log('min',mayor)
+				break;
 		}
 	}
 	//document.getElementsByTagName('th')[posicion+1].className = 'alert-primary';
+	if (posicion == undefined) alert('murio')
 	return posicion;
 }
 
@@ -166,21 +203,33 @@ function estandarizar() {
 		restricciones: [],
 	};
 
+	artificiales = [];
+
 	// determina catidad de cada tipo de variable
 	restricciones.forEach((res) => {
 		if (/\s=\s/g.test(res)) {
 			v_artificiales += 1;
-			modelo.objetivo += '+0R'+v_artificiales;
+			//modelo.objetivo += '+R'+v_artificiales;
+			artificiales.push('R'+v_artificiales)
 		} else if (/\s<=\s/g.test(res)) {
 			v_holgura += 1;
 			modelo.objetivo += '+0S'+v_holgura;
 		} else if (/\s>=\s/g.test(res)) {
 			v_holgura += 1;
 			v_artificiales += 1;
-			modelo.objetivo += '+0R'+v_artificiales;
+			//modelo.objetivo += '+R'+v_artificiales;
+			artificiales.push('R'+v_artificiales)
 			modelo.objetivo += '+0S'+v_holgura;
 		}
 	});
+
+	artificiales.forEach(v => {
+		if(document.getElementById('tipo').value == 'max') {
+			modelo.objetivo += '-1000000000'+v;
+		} else {
+			modelo.objetivo += '+1000000000'+v;
+		}
+	})
 
 	let c_art = 0; // contador de variables artificiales agregadas
 	let c_hol = 0; // contador de variables de holgura agregadas
@@ -270,6 +319,7 @@ function crearTabla(tabla, iter) {
 	let filaHtml = '';
 	
 	tabla.forEach((fila, i) => {
+		console.log('crear tabla', JSON.stringify(sbi))
 		if (i == 0) {
 			filaHtml = `<tr style="background-color: darkgrey; color: white;"><td>Z</td>`;
 		} else {
@@ -281,31 +331,6 @@ function crearTabla(tabla, iter) {
 
 		tablaHTML.innerHTML += filaHtml + '</tr>';
 	});
-}
-
-function splitRestriction(res) {
-	if (/\s=\s/.test(res)) {
-
-		let splited = res.replace(' ', `+R${variablesArt.length+1} `).split(' = ')
-		variablesArt.push(`R${variablesArt.length+1}`)
-		return ['=', { rightHand:  splited[0], leftHand:  splited[1]}]
-
-	} else if(/\s>=\s/.test(res)) {
-
-		let splited = res.replace(' ', `-S${variablesHol.length+1}+R${variablesArt.length+1} `).split(' >= ');
-		variablesHol.push(`S${variablesHol.length+1}`)
-		variablesArt.push(`R${variablesArt.length+1}`)
-		return ['>=', { rightHand:  splited[0], leftHand:  splited[1]}]
-
-	} else if(/\s<=\s/.test(res)) {
-
-		let splited = res.replace(' ', `+S${variablesHol.length+1} `).split(' <= ')
-		variablesHol.push(`S${variablesHol.length+1}`)
-		return ['<=', { rightHand:  splited[0], leftHand:  splited[1]}]
-
-	} else {
-		return;
-	}
 }
 
 function calcular() {
@@ -330,9 +355,13 @@ function calcular() {
 		tablaInicial[i+1].push(parseFloat(r.split(' = ')[1])); // valor solucion
 	});
 
+	console.log('Tabla inicial')
+	tablaInicial.forEach(fila => console.log(fila))
+
 	// Crear cabecera de la tabla
 	// con variables en funcion objetivo
-	let variables = modeloEstandard.objetivo.match(/[a-zA-Z]\d{1,}/g);
+	variables = modeloEstandard.objetivo.match(/(X\d{1,})|(S\d{1,})/g);
+	variables = variables.concat(artificiales);
 
 	let cabecera = document.getElementById('cabecera');
 	cabecera.innerHTML = '<th>VB</th>';
@@ -343,11 +372,7 @@ function calcular() {
 
 	cabecera.innerHTML += '<th>Sol</th>';
 
-	if (metodo == 0) {
-		simplex(tablaInicial)
-	} else {
-		alert('Este problema se resuelve por el metodo de la M o el de 2 Fases')
-	}
+	simplex(tablaInicial)
 }
 
 function limpiar() {

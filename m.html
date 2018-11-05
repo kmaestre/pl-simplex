@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>2 Fases - Programaci&oacute;n Lineal</title>
+	<title>Simplex - Programaci&oacute;n Lineal</title>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title></title>
@@ -11,7 +11,7 @@
 	<script src="js/bootstrap.min.js"></script>
 	<style>
 		*, .btn {
-			font-size: 14px;
+			font-size: 12px;
 			font-weight: bold;
 		}
 		code, #restriction-input {
@@ -56,19 +56,8 @@
 			<!-- Fin Formulario de entrada-->	
 
 			<!-- Tabla-->
-			<section id="resultado" class="col-8 mx-auto py-2 text-center">
-				<h2 id="titulo1" style="color: white; display: none;">Fase 1</h2>
-				<table id="tabla1" class="table table-hover table-bordered text-center bg-white rounded">
-					<thead>
-						<tr id="cabecera">
-						</tr>
-					</thead>
-					<tbody id="tbody">
-					</tbody>
-				</table>
-
-				<h2 id="titulo2" style="color: white; display: none;">Fase 2</h2>
-				<table id="tabla2" class="table table-hover table-bordered text-center bg-white rounded">
+			<section id="resultado" class="col-8 py-2">
+				<table id="tabla" class="table table-hover table-bordered text-center bg-white rounded">
 					<thead>
 						<tr id="cabecera">
 						</tr>
@@ -81,7 +70,7 @@
 		</div>
 
 	</div> 
-	<script src="./2fases2.js"></script>
+	<script src="./m.js"></script>
 	<script>
 		document.querySelector('#restriction-input').addEventListener('keypress', (e) => {
 			if (e.key == 'Enter') {
